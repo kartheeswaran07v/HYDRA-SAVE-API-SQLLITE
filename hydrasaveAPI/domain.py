@@ -30,3 +30,38 @@ def checkCompetitor(username):
     else:
         isCompetitor = False
     return isCompetitor
+
+def bestApproximate(x, y):
+    sum_x = 0
+    sum_y = 0
+    sum_xy = 0
+    sum_x2 = 0
+    n = len(x)
+    for i in range(0, n):
+        sum_x += x[i]
+        sum_y += y[i]
+        sum_xy += x[i] * y[i]
+        sum_x2 += pow(x[i], 2)
+
+    m = float((n * sum_xy - sum_x * sum_y)
+              / (n * sum_x2 - pow(sum_x, 2)))
+
+    c = float(sum_y - m * sum_x) / n
+
+    # print("m = ", m)
+    # print("c = ", c)
+    return m, c
+
+
+def linear_graph(y):
+    len_x = len(y)
+    x = range(len_x)
+    m, c = bestApproximate(x, y)
+    # m = 0.0002854681878130317
+    # c = -11.655193900327705
+    y_linear_list = []
+    for i in x:
+        y = m * i + c
+        y_linear_list.append(round(y, 3))
+    # print(m, c)
+    return y_linear_list, m, c
