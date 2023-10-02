@@ -318,7 +318,7 @@ def tsData(request):
     # serializer = tsPlantSerializer(plants, many=True)
     stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
     tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
-    data_trim = tsDatas[:400]
+    data_trim = tsDatas[:100]
     json_data_sspn = {'sspn': [],
                         'linear': [],
                         'timeseries': []}
