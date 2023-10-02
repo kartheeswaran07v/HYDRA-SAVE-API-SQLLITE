@@ -1,25 +1,6 @@
-{   
-    "stageId": "345916",
-    "tsData": [{
-        "date": "2023-10-01",
-        "time": "14:47:40",
-        "turbidity": 1.0,
-        "sdi": 1.0,
-        "pH": 1.0,
-        "temperature": 1.0,
-        "feedConc": 1.0,
-        "permConc": 1.0,
-        "rejectConc": 1.0,
-        "feedFlow": 1.0,
-        "permFlow": 1.0,
-        "rejectFlow": 1.0,
-        "permPres": 1.0,
-        "feedPres": 1.0,
-        "rejectPres": 1.0,
-        "normSaltPassage": 1.0,
-        "normPermFlow": 1.0,
-        "normDP": 1.0,
-        "remarks": "aaa",
-        "energy": 1.0
-    }]
+{
+    "plants": [{"uniqueId": "a"}, "b", "c"],
+    "trains": {"a": ["t_1", "t_2"], "b": ["t_1", "t_2"]},
+    "passes": {"t_1": ["p_1", "p_2"], "t_2": ["p_3", "p_4"]},
+    "stages": {"p_1": ["s1", "s2"]}
 }

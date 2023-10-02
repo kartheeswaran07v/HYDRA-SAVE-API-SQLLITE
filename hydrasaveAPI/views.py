@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import *
-from .serializer import PlantSerializer, UserSerializer, tsPlantSerializer, tsDataSerializer
+from .serializer import PlantSerializer, UserSerializer, dashPlantSerializer, tsDataSerializer
 from django.core.exceptions import ObjectDoesNotExist
 import random
 from .domain import getDomain, checkWebmail, checkCompetitor
@@ -92,7 +92,10 @@ def checkPassword(request):
         "status": "OK",
         "status_code": 200,
         "isCorrectPW": isCorrectPW,
-        "userId": user.id
+        "username": user.id, 
+        "email": user.emailID,
+        "firstName": user.firstName,
+        "lastName": ""
     }
 
     return Response(json_)
@@ -226,6 +229,15 @@ def allPlants(request):
     return Response(serializer.data)
 
 
+# View all Plants: http://127.0.0.1:8000/api/plant/dashPlants
+@api_view(['GET'])
+def dashPlants(request):
+    plants = plantMaster.objects.filter(createdById=userMaster.objects.get(id=1)).all()
+    serializer = dashPlantSerializer(plants, many=True)
+    return Response(serializer.data)
+
+
+
 # View Add Plants: http://127.0.0.1:8000/plant/addPlant/
 @api_view(['POST'])
 def addPlant(request):
@@ -238,10 +250,18 @@ def addPlant(request):
 
     # check for unique Stages
     stage_count = 0
+    pass_count = 0
+    train_count = 0
     for train_data in trains_data:
         passes_data = train_data.pop('passes')
+        train_element = trainMaster.objects.filter(trainUniqueId=train_data['trainUniqueId']).all()
+        if len(train_element) > 0:
+            train_count += 1
         for pass_data in passes_data:
             stages_data = pass_data.pop('stages')
+            pass_element = passMaster.objects.filter(passUniqueId=pass_data['passUniqueId']).all()
+            if len(pass_element) > 0:
+                pass_count += 1
             for stage_data in stages_data:
                 elements_data = stage_data.pop('elements')
                 stage_element = stageMaster.objects.filter(stageUniqueId=stage_data['stageUniqueId']).all()
@@ -321,3 +341,111 @@ def addTsData(request):
         }
 
     return Response(json_)
+
+
+
+def get_param_details(param, param_object):
+    percent_param = ((float(param)-float(param_object.reference))/param)*100
+    if float(param_object.low) < percent_param <= float(param_object.high):
+        status = 'normal'
+    elif percent_param <= float(param_object.highhigh):
+        status = 'high'
+    elif percent_param > float(param_object.highhigh):
+        status = 'highhigh'
+    elif float(param_object.lowlow) <= percent_param < float(param_object.low):
+        status = 'low'
+    elif float(param_object.lowlow) > percent_param:
+        status = 'lowlow'
+    
+    return {'percent_value': percent_param, 'status': status}
+
+
+# View all Plants: http://127.0.0.1:8000/plant/setPoint
+@api_view(['POST'])
+def setPoint(request):
+    plant_element = plantMaster.objects.get(plantUniqueId=request.data['plantUniqueId'])
+    train_element = trainMaster.objects.get(plantId=plant_element, trainName=request.data['trainName'])
+    stage_elements = stageMaster.objects.filter(passId__trainId=train_element).all()
+    train_data = []
+    for stage in stage_elements:
+        set_point_nsp = setPoints.objects.filter(stageId=stage, parameter='NSP').first()
+        set_point_npf = setPoints.objects.filter(stageId=stage, parameter='NPF').first()
+        set_point_ndp = setPoints.objects.filter(stageId=stage, parameter='NDP').first()
+        ts_data_latest = timeSeriesData.objects.filter(stageId=stage).last()
+        nsp, npf, ndp = ts_data_latest.normSaltPassage, ts_data_latest.normPermFlow, ts_data_latest.normDP
+        stage_set_dict = {
+            "stageUniqueId": stage.stageUniqueId,
+            "data": {
+                "NDP": get_param_details(ndp, set_point_ndp),
+                "NSP": get_param_details(nsp, set_point_nsp),
+                "NPF": get_param_details(npf, set_point_npf)
+            }
+        }
+        train_data.append(stage_set_dict)
+
+    json_ = {
+        "status": "OK",
+        "status_code": 200,
+        "data": train_data
+    }
+    return Response(json_)
+
+
+# View all Plants: http://127.0.0.1:8000/plant/dropdown
+@api_view(['POST'])
+def dropdown(request):
+    plant_elements = plantMaster.objects.filter(createdById=userMaster.objects.get(emailID=request.data['username'])).all()
+    plant_list = []
+    for i in plant_elements:
+        plant_dict = {i.plantUniqueId: i.plantName}
+        plant_list.append(plant_dict)
+        # train_elements = trainMaster.objects.filter(plantId=i).all()
+        # train_list.append(train_elements)
+    train_dict = {}
+    for i in plant_elements:
+        train_elements = trainMaster.objects.filter(plantId=i).all()
+        train_list = []
+        for train in train_elements:
+            train_dict_ = {train.trainUniqueId: train.trainName}
+            train_list.append(train_dict_)
+        
+        train_dict[i.plantUniqueId] = train_list
+
+    pass_dict = {}
+    for i in plant_elements:
+        train_elements = trainMaster.objects.filter(plantId=i).all()
+        for train in train_elements:
+            pass_elements = passMaster.objects.filter(trainId=train).all()
+            pass_list = []
+            for pass_ in pass_elements:
+                pass_dict_ = {pass_.passUniqueId: pass_.passName}
+                pass_list.append(pass_dict_)
+            
+            pass_dict[train.trainUniqueId] = pass_list
+    
+    stage_dict = {}
+    for i in plant_elements:
+        train_elements = trainMaster.objects.filter(plantId=i).all()
+        for train in train_elements:
+            pass_elements = passMaster.objects.filter(trainId=train).all()
+            for pass_ in pass_elements:
+                stage_elements = stageMaster.objects.filter(passId=pass_).all()
+                stage_list = []
+                for stage in stage_elements:
+                    stage_dict_ = {stage.stageUniqueId: stage.stageNumber}
+                    stage_list.append(stage_dict_)
+                stage_dict[pass_.passUniqueId] = stage_list 
+
+
+    response_dict = {
+        "plants": plant_list,
+        "trains": train_dict,
+        "passes": pass_dict,
+        "stages": stage_dict
+    }
+
+    return Response(response_dict)
+
+
+
+        

@@ -13,5 +13,8 @@ urlpatterns = [
     path('api/plant/allPlants', views.allPlants, name='All Plants'),
     path('api/plant/addPlant', views.addPlant, name="Add Plant"),
     path('api/plant/tsData', views.tsData, name='tsData'),
-    path('api/plant/addTsData', views.addTsData, name='Add Time series Data')
+    path('api/plant/addTsData', views.addTsData, name='Add Time series Data'),
+    path('api/plant/setPoint', views.setPoint, name='Set Points'),
+    path('api/plant/dashPlants', views.dashPlants, name='Plant Trains'),
+    path('api/plant/dropdown', views.dropdown, name='Dropdown')
 ]

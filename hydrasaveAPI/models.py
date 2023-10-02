@@ -1,6 +1,8 @@
 from django.db import models
 from datetime import datetime
 from datetime import date
+import random
+import uuid
 
 # Create your models here.
 class regionMaster(models.Model):
@@ -57,20 +59,29 @@ class plantMaster(models.Model):
     energyUnit = models.CharField(max_length=45)
     
     def __str__(self):
-        return self.plantName
+        return self.plantUniqueId
 
 class trainMaster(models.Model):
+    random_decimal = random.random()
+    random_int = round(random_decimal*10**6)
+
     plantId = models.ForeignKey(plantMaster, related_name='trains', on_delete=models.CASCADE)
     trainName = models.CharField(max_length=45)
     trainNumber = models.IntegerField()
-
+    trainUniqueId = models.CharField(max_length=45, unique=True)
+    
+    
     def __str__(self):
         return self.trainName
 
 class passMaster(models.Model):
+    random_decimal = random.random()
+    random_int = round(random_decimal*10**6)
+
     trainId = models.ForeignKey(trainMaster, related_name='passes', on_delete=models.CASCADE)         
     passName = models.CharField(max_length=45)
     passNumber = models.IntegerField()
+    passUniqueId = models.CharField(max_length=45, unique=True)
 
     def __str__(self):
         return self.passName

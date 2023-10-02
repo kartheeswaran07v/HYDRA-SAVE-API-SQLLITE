@@ -71,3 +71,15 @@ class tsPlantSerializer(serializers.ModelSerializer):
     class Meta:
         model=plantMaster
         fields=["plantUniqueId", "plantName", "trains"]
+
+
+class dashTrainSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=trainMaster
+        fields=["trainName", "trainNumber"]
+ 
+class dashPlantSerializer(serializers.ModelSerializer):
+    trains = dashTrainSerializer(many=True, read_only=True)
+    class Meta:
+        model=plantMaster
+        fields=["id","plantName", "plantUniqueId", "trains"]
