@@ -83,3 +83,14 @@ class dashPlantSerializer(serializers.ModelSerializer):
     class Meta:
         model=plantMaster
         fields=["id","plantName", "plantUniqueId", "trains"]
+
+
+class setPointsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = setPoints
+        fields = "__all__"
+
+class addSetPointsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = setPoints
+        fields = ["reference", "low", "lowlow", "high", "highhigh", "parameter"]

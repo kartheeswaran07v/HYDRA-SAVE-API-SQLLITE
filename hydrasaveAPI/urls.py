@@ -17,5 +17,7 @@ urlpatterns = [
     path('api/plant/setPoint', views.setPoint, name='Set Points'),
     path('api/plant/dashPlants', views.dashPlants, name='Plant Trains'),
     path('api/plant/dropdown', views.dropdown, name='Dropdown'),
+    path('api/plant/getSetPoints', views.getSetPoints, name='Set Points'),
+    path('api/plant/addSetPoints', views.addSetPoints, name='Add Set Points')
     # path('api/addLargeData', views.addLargeData, name="addLargeData")
 ]

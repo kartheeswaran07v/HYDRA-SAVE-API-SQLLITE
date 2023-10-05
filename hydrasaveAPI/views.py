@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import *
-from .serializer import PlantSerializer, UserSerializer, dashPlantSerializer, tsDataSerializer
+from .serializer import *
 from django.core.exceptions import ObjectDoesNotExist
 import random
 from .domain import getDomain, checkWebmail, checkCompetitor, linear_graph
@@ -316,17 +316,18 @@ def addPlant(request):
 def tsData(request):
     # plants = plantMaster.objects.filter(createdById=userMaster.objects.get(id=1)).all()
     # serializer = tsPlantSerializer(plants, many=True)
+    param = request.data['param']
     stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
     tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
     data_trim = tsDatas[:100]
-    json_data_sspn = {'sspn': [],
+    json_data_sspn = {param: [],
                         'linear': [],
                         'timeseries': []}
     for i in data_trim:
-        json_data_sspn['sspn'].append(round(i.normSaltPassage, 3))
+        json_data_sspn[param].append(round(i.__dict__[param], 3))
         json_data_sspn['timeseries'].append(str(i.date)[:10])
     
-    json_data_sspn['linear'] = linear_graph(json_data_sspn['sspn'])[0]
+    json_data_sspn['linear'] = linear_graph(json_data_sspn[param])[0]
     # serializer = tsDataSerializer(tsDatas, many=True)
     return Response(json_data_sspn)
 
@@ -504,3 +505,25 @@ def dropdown(request):
 # def addLargeData(request):
 #     addData()
 #     return Response({"message": "success"})
+
+# View all Plants: http://127.0.0.1:8000/api/plant/get/setPoints
+@api_view(['POST'])
+def getSetPoints(request):
+    set_points = setPoints.objects.filter(stageId=stageMaster.objects.get(stageUniqueId=request.data['stageId'])).all()
+    serializer = setPointsSerializer(set_points, many=True)
+    return Response(serializer.data)
+
+
+# View all Plants: http://127.0.0.1:8000/api/plant/addSetPoints
+@api_view(['POST'])
+def addSetPoints(request):
+    stage_element = stageMaster.objects.get(stageUniqueId=request.data['stageId'])
+    for data_ in request.data['data']:
+        print(data_)
+        serializer = addSetPointsSerializer(data=data_)
+        if serializer.is_valid():
+            serializer.save(stageId=stage_element)
+        else:
+            print('data invalid')
+    
+    return Response({"message": "success"})
