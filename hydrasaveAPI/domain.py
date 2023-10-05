@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 def getDomain(username):
     domain_ = username.split('@')[1]
     domain = domain_.split('.')[0]
-    return domain
+    return domain.lower()
 
 def checkWebmail(username):
     domain = getDomain(username)

@@ -320,17 +320,71 @@ def tsData(request):
     stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
     tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
     data_trim = tsDatas[:100]
-    json_data_sspn = {param: [],
-                        'linear': [],
-                        'timeseries': []}
-    for i in data_trim:
-        json_data_sspn[param].append(round(i.__dict__[param], 3))
-        json_data_sspn['timeseries'].append(str(i.date)[:10])
-    
-    json_data_sspn['linear'] = linear_graph(json_data_sspn[param])[0]
-    # serializer = tsDataSerializer(tsDatas, many=True)
-    return Response(json_data_sspn)
+    # json_data_sspn = {param: [],
+    #                     'linear': [],
+    #                     'timeseries': []}
 
+    json_graph = {
+        "data": [
+            {
+                "nsp": [],
+                "linear": [],
+                "timeseries": []
+            },
+            {
+                "npf":[],
+                "linear":[],
+                "timeseries": []
+            },
+            {
+                "ndp": [],
+                "linear":[],
+                "timeseries": []
+                
+            }
+        ]
+    }
+
+    for i in data_trim:
+        # json_data_sspn[param].append(round(i.__dict__[param], 3))
+        # json_data_sspn['timeseries'].append(str(i.date)[:10])
+        json_graph['data'][0]['nsp'].append(round(i.normSaltPassage, 3))
+        json_graph['data'][1]['npf'].append(round(i.normPermFlow, 3))
+        json_graph['data'][2]['ndp'].append(round(i.normDP, 3))
+        
+        json_graph['data'][0]['timeseries'].append(str(i.date)[:10])
+        json_graph['data'][1]['timeseries'].append(str(i.date)[:10])
+        json_graph['data'][2]['timeseries'].append(str(i.date)[:10])
+    
+    # json_data_sspn['linear'] = linear_graph(json_data_sspn[param])[0]
+    json_graph['data'][0]['linear'] = linear_graph(json_graph['data'][0]['nsp'])[0]
+    json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
+    json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
+    # serializer = tsDataSerializer(tsDatas, many=True)
+    return Response(json_graph)
+
+
+# View all Plants: http://127.0.0.1:8000/plant/tsDataTable
+@api_view(['POST'])
+def tsDataTable(request):
+    stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
+    tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
+    data_trim = tsDatas[:100]
+
+    json_table = {
+        "timeseries": [],
+        "nsp": [],
+        "npf": [],
+        "ndp": []
+    }
+
+    for i in data_trim:
+        json_table['nsp'].append(round(i.normSaltPassage, 3))
+        json_table['npf'].append(round(i.normPermFlow, 3))
+        json_table['ndp'].append(round(i.normDP, 3))
+        json_table['timeseries'].append(str(i.date)[:10])
+    
+    return Response(json_table)
 
 # View all Plants: http://127.0.0.1:8000/plant/addTsData/
 @api_view(['POST'])
