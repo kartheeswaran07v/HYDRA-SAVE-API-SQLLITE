@@ -430,7 +430,7 @@ def get_param_details(param, param_object):
 @api_view(['POST'])
 def setPoint(request):
     plant_element = plantMaster.objects.get(plantUniqueId=request.data['plantUniqueId'])
-    train_element = trainMaster.objects.get(plantId=plant_element, trainName=request.data['trainName'])
+    train_element = trainMaster.objects.get(plantId=plant_element, trainUniqueId=request.data['trainName'])
     stage_elements = stageMaster.objects.filter(passId__trainId=train_element).all()
     train_data = []
     for stage in stage_elements:
@@ -445,7 +445,8 @@ def setPoint(request):
                 "NDP": get_param_details(ndp, set_point_ndp),
                 "NSP": get_param_details(nsp, set_point_nsp),
                 "NPF": get_param_details(npf, set_point_npf)
-            }
+            },
+            "data2": [["NDP", get_param_details(ndp, set_point_ndp)['percent_value']], ["NSP", get_param_details(nsp, set_point_nsp)['percent_value']], ["NPF", get_param_details(npf, set_point_npf)['percent_value']]]
         }
         train_data.append(stage_set_dict)
 
