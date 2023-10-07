@@ -7,7 +7,7 @@ from .models import *
 from .serializer import *
 from django.core.exceptions import ObjectDoesNotExist
 import random
-from .domain import getDomain, checkWebmail, checkCompetitor, linear_graph
+from .domain import *
 from django.core.mail import send_mail
 from django.http import HttpResponse
 import copy
@@ -361,6 +361,9 @@ def tsData(request):
     json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
     json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
     # serializer = tsDataSerializer(tsDatas, many=True)
+
+    a = ts_data_date('2018-03-13', '2018-04-06')
+    print(a)
     return Response(json_graph)
 
 
@@ -369,21 +372,54 @@ def tsData(request):
 def tsDataTable(request):
     stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
     tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
-    data_trim = tsDatas[:100]
+    data_trim = tsDatas[:10]
 
+    # json_table = {
+    #     "timeseries": [],
+    #     "nsp": [],
+    #     "npf": [],
+    #     "ndp": []
+    # }
+
+    # for i in data_trim:
+    #     json_table['nsp'].append(round(i.normSaltPassage, 3))
+    #     json_table['npf'].append(round(i.normPermFlow, 3))
+    #     json_table['ndp'].append(round(i.normDP, 3))
+    #     json_table['timeseries'].append(str(i.date)[:10])
+    
+    a = ts_data_date('2018-03-13', '2018-04-06', stageId=stage_element)
+    print(a)   
     json_table = {
-        "timeseries": [],
-        "nsp": [],
-        "npf": [],
-        "ndp": []
+        "data": [],
+        "columns": [
+            {
+                "dataField": "timeseries",
+                "text": "Time Series"
+            },
+            {
+                "dataField": "nsp",
+                "text": "NSP"
+            },
+            {
+                "dataField": "ndp",
+                "text": "NDP"
+            },
+            {
+                "dataField": "npf",
+                "text": "NPF"
+            }
+        ]
     }
 
     for i in data_trim:
-        json_table['nsp'].append(round(i.normSaltPassage, 3))
-        json_table['npf'].append(round(i.normPermFlow, 3))
-        json_table['ndp'].append(round(i.normDP, 3))
-        json_table['timeseries'].append(str(i.date)[:10])
-    
+        single_data = {
+            "timeseries": str(i.date)[:10],
+            "nsp": round(i.normSaltPassage, 3),
+            "ndp": round(i.normDP, 3),
+            "npf": round(i.normPermFlow, 3)
+        }
+        json_table['data'].append(single_data)
+
     return Response(json_table)
 
 # View all Plants: http://127.0.0.1:8000/plant/addTsData/
@@ -582,3 +618,9 @@ def addSetPoints(request):
             print('data invalid')
     
     return Response({"message": "success"})
+
+
+
+
+
+# FTP Check

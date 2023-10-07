@@ -1,89 +1,52 @@
 {
-    "plants": [
+    "data": [
         {
-            "PLANT12": "Plant 1"
+            "timeseries": "2023-10-01",
+            "sspn": "1.0",
+            "qspn": "1.0",
+            "normDP": "1.0"
         },
         {
-            "PLANT124": "Plant 2"
+            "timeseries": "2023-10-02",
+            "sspn": "2.0",
+            "qspn": "2.0",
+            "normDP": "2.0"
         },
         {
-            "PLANT111124": "Plant 3"
+            "timeseries": "2023-10-03",
+            "sspn": "1.0",
+            "qspn": "1.0",
+            "normDP": "1.0"
+        },
+        {
+            "timeseries": "2023-10-04",
+            "sspn": "2.0",
+            "qspn": "2.0",
+            "normDP": "2.0"
+        },
+        {
+            "timeseries": "2023-10-05",
+            "sspn": "1.0",
+            "qspn": "1.0",
+            "normDP": "1.0"
         }
     ],
-    "trains": {
-        "PLANT12": [
-            {
-                "trainUniqueId776": "Train 1",
-                "trainUniqueId123": "Train 2"
-            }
-        ],
-        "PLANT124": [
-            {
-                "trainUniqueId4444": "Train 1"
-            }
-        ],
-        "PLANT111124": [
-            {
-                "trainUniqueId984": "Train 1"
-            }]
-    },
-    "passes": {
-        "trainUniqueId776": [
-            {
-                "passUniqueId4352": "Pass 1",
-                "passUniqueId888": "Pass 2"
-            }
-        ],
-        "trainUniqueId123": [
-            {
-                "passUniqueId123": "Pass 1"
-            }
-        ],
-        "trainUniqueId4444": [
-            {
-                "passUniqueId2222": "Pass 1"
-            }
-        ],
-        "trainUniqueId984": [
-            {
-                "PLANT93453": "Pass 1"
-            }
-        ]
-    },
-    "stages": {
-        "passUniqueId4352": [
-            {
-                "3456": "Stage 1"
-            },
-            {
-                "ABCD": "Stage 2"
-            }
-        ],
-        "passUniqueId888": [
-            {
-                "STAGE-985": "Stage 1"
-            },
-            {
-                "STAGE-586": "Stage 2"
-            }
-        ],
-        "passUniqueId2222": [
-            {
-                "34596": "Stage 1"
-            }
-        ],
-        "passUniqueId123": [
-            {
-                "345916": "Stage 1"
-            }
-        ],
-        "PLANT93453": [
-            {
-                "3459SS216": "Stage 1"
-            },
-            {
-                "3459S55516": "Stage 1"
-            }
-        ]
-    }
+    "columns": [
+        {
+            "dataField": "timeseries",
+            "text": "Time Series"
+        },
+        {
+            "dataField": "sspn",
+            "text": "SSPN"
+        },
+        {
+            "dataField": "qspn",
+            "text": "QSPN"
+        },
+        {
+            "dataField": "normDP",
+            "text": "Norm DP"
+        }
+    ]
 }

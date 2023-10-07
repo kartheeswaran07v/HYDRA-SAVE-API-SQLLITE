@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import plantMaster, userMaster, domainMaster, OTP, regionMaster, industryMaster
+from .models import plantMaster, userMaster, domainMaster, OTP, regionMaster, industryMaster, timeSeriesData
 from .serializer import PlantSerializer, UserSerializer
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -65,3 +65,14 @@ def linear_graph(y):
         y_linear_list.append(round(y, 3))
     # print(m, c)
     return y_linear_list, m, c
+
+
+def ts_data_date(fromDate, toDate, stageId):
+    from_data = timeSeriesData.objects.filter(date=fromDate, stageId=stageId).first()
+    to_data = timeSeriesData.objects.filter(date=toDate, stageId=stageId).first()
+
+    return from_data.feedConc, to_data.feedConc
+
+
+# a = ts_data_date('2018-03-13', '2018-04-06')
+# print(a)
