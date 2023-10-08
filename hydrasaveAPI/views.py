@@ -367,15 +367,18 @@ def tsData(request):
         json_graph['data'][2]['timeseries'].append(str(i.date)[:10])
     
     # json_data_sspn['linear'] = linear_graph(json_data_sspn[param])[0]
-    json_graph['data'][0]['linear'] = linear_graph(json_graph['data'][0]['nsp'])[0]
-    json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
-    json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
-    # serializer = tsDataSerializer(tsDatas, many=True)
+    try:
+        json_graph['data'][0]['linear'] = linear_graph(json_graph['data'][0]['nsp'])[0]
+        json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
+        json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
+        # serializer = tsDataSerializer(tsDatas, many=True)
 
-    # Statistical Data
-    json_graph['statisticalData'].append(statisticalData(json_graph['data'][0]['nsp']))
-    json_graph['statisticalData'].append(statisticalData(json_graph['data'][1]['npf']))
-    json_graph['statisticalData'].append(statisticalData(json_graph['data'][2]['ndp']))
+        # Statistical Data
+        json_graph['statisticalData'].append(statisticalData(json_graph['data'][0]['nsp']))
+        json_graph['statisticalData'].append(statisticalData(json_graph['data'][1]['npf']))
+        json_graph['statisticalData'].append(statisticalData(json_graph['data'][2]['ndp']))
+    except ZeroDivisionError:
+        pass
 
     return Response(json_graph)
 
@@ -446,7 +449,8 @@ def addTsData(request):
     ts_data = request.data['tsData']
     if stage_element:
         for data in ts_data:
-            timeSeriesData.objects.create(stageId=stage_element, **data)
+            # timeSeriesData.objects.create(stageId=stage_element, **data)
+            timeSeriesData.objects.update_or_create(stageId=stage_element, date=data['date'], defaults=data)
         json_ = {
             "status": "OK",
             "status_code": 200,
