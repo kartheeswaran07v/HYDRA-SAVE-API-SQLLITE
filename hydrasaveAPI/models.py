@@ -29,7 +29,7 @@ class userMaster(models.Model):
     industryId = models.ForeignKey(industryMaster, on_delete=models.CASCADE, null=True)   
     companyName = models.CharField(max_length=45)
     designation = models.CharField(max_length=45)
-    isActive = models.BooleanField(help_text="1-True, 0-False")
+    isActive = models.BooleanField(help_text="1-True, 0-False", default=True)
     remarks = models.CharField(max_length=45, null=True)
     logo = models.ImageField(blank=True)
     mobileNo = models.CharField(max_length=45)
