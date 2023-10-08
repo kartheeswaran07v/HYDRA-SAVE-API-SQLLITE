@@ -101,12 +101,13 @@ def checkPassword(request):
         "lastName": ""
     }
     response = Response(json_)
+
     if isCorrectPW:
         random_decimal = random.random()
         random_int = round(random_decimal*10**6)
         user.cookies = random_int
         user.save()
-        response = Response({"message": "success"})
+        # response = Response({"message": "success"})
         response.set_cookie(key='token', value=random_int)
 
     return response
@@ -652,21 +653,21 @@ def addSetPoints(request):
 
 
 # View all Plants: http://127.0.0.1:8000/api/cookies
-@api_view(['POST'])
-def cookies(request):
-    user_element = userMaster.objects.get(emailID=request.data['emailID'])
-    random_decimal = random.random()
-    random_int = round(random_decimal*10**6)
-    random_uid = str(uuid.uuid3)
-    user_element.cookies = random_int
-    user_element.save()
+# @api_view(['POST'])
+# def cookies(request):
+#     user_element = userMaster.objects.get(emailID=request.data['emailID'])
+#     random_decimal = random.random()
+#     random_int = round(random_decimal*10**6)
+#     random_uid = str(uuid.uuid3)
+#     user_element.cookies = random_int
+#     user_element.save()
 
-    response = Response({"message": "success"})
-    response.set_cookie(key='token', value=random_int)
+#     response = Response({"message": "success"})
+#     response.set_cookie(key='token', value=random_int)
 
-    # Response.set_cookie(self='',key='token', value=random_uid)
+#     # Response.set_cookie(self='',key='token', value=random_uid)
 
-    return response
+#     return response
 
 
 
