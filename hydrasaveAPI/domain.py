@@ -75,5 +75,17 @@ def ts_data_date(fromDate, toDate, stageId):
     return range_data
 
 
+def statisticalData(data):
+    mean = sum(data) / len(data)
+
+    min_ = min(data)
+
+    max_ = max(data)
+
+    std = sum([(i - mean) ** 2 for i in data]) / (len(data) - 1)
+
+    return {'mean': round(mean, 3), 'min': round(min_, 3), 'max': round(max_, 3), 'std': round(std, 3)}
+
+
 # a = ts_data_date('2018-03-13', '2018-04-06')
 # print(a)

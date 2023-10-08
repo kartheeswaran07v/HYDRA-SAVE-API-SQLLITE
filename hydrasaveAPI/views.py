@@ -351,7 +351,8 @@ def tsData(request):
                 "timeseries": []
                 
             }
-        ]
+        ],
+        "statisticalData": []
     }
 
     for i in data_trim:
@@ -370,6 +371,11 @@ def tsData(request):
     json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
     json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
     # serializer = tsDataSerializer(tsDatas, many=True)
+
+    # Statistical Data
+    json_graph['statisticalData'].append(statisticalData(json_graph['data'][0]['nsp']))
+    json_graph['statisticalData'].append(statisticalData(json_graph['data'][1]['npf']))
+    json_graph['statisticalData'].append(statisticalData(json_graph['data'][2]['ndp']))
 
     return Response(json_graph)
 
