@@ -73,7 +73,7 @@ def check(request):
         json_ = {
             "status": "Incorrect API key",
             "status_code": 401,
-            "errorMessage": "You've provided incorrect API Key. Kindly check again!"
+            "errorMessage": "Validation Error"
         }
     return Response(json_)
 
