@@ -403,62 +403,62 @@ def tsData(request):
 # View all Plants: http://127.0.0.1:8000/plant/tsDataTable
 @api_view(['POST'])
 def tsDataTable(request):
-    cookie = request.COOKIES['token']
-    if cookie == userMaster.objects.get(emailID=request.data['emailID']).cookies:
-        stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
-        # tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
-        # data_trim = tsDatas[:10]
+    # cookie = request.COOKIES['token']
+    # if cookie == userMaster.objects.get(emailID=request.data['emailID']).cookies:
+    stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
+    # tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
+    # data_trim = tsDatas[:10]
 
-        # json_table = {
-        #     "timeseries": [],
-        #     "nsp": [],
-        #     "npf": [],
-        #     "ndp": []
-        # }
+    # json_table = {
+    #     "timeseries": [],
+    #     "nsp": [],
+    #     "npf": [],
+    #     "ndp": []
+    # }
 
-        # for i in data_trim:
-        #     json_table['nsp'].append(round(i.normSaltPassage, 3))
-        #     json_table['npf'].append(round(i.normPermFlow, 3))
-        #     json_table['ndp'].append(round(i.normDP, 3))
-        #     json_table['timeseries'].append(str(i.date)[:10])
-        
-        data_trim = ts_data_date(request.data['from'], request.data['to'], stageId=stage_element)
-        # print(a)   
-        json_table = {
-            "data": [],
-            "columns": [
-                {
-                    "dataField": "timeseries",
-                    "text": "Time Series"
-                },
-                {
-                    "dataField": "nsp",
-                    "text": "NSP"
-                },
-                {
-                    "dataField": "ndp",
-                    "text": "NDP"
-                },
-                {
-                    "dataField": "npf",
-                    "text": "NPF"
-                }
-            ]
-        }
-
-        for i in data_trim:
-            single_data = {
-                "timeseries": str(i.date)[:10],
-                "nsp": round(i.normSaltPassage, 3),
-                "ndp": round(i.normDP, 3),
-                "npf": round(i.normPermFlow, 3)
+    # for i in data_trim:
+    #     json_table['nsp'].append(round(i.normSaltPassage, 3))
+    #     json_table['npf'].append(round(i.normPermFlow, 3))
+    #     json_table['ndp'].append(round(i.normDP, 3))
+    #     json_table['timeseries'].append(str(i.date)[:10])
+    
+    data_trim = ts_data_date(request.data['from'], request.data['to'], stageId=stage_element)
+    # print(a)   
+    json_table = {
+        "data": [],
+        "columns": [
+            {
+                "dataField": "timeseries",
+                "text": "Time Series"
+            },
+            {
+                "dataField": "nsp",
+                "text": "NSP"
+            },
+            {
+                "dataField": "ndp",
+                "text": "NDP"
+            },
+            {
+                "dataField": "npf",
+                "text": "NPF"
             }
-            json_table['data'].append(single_data)
+        ]
+    }
+
+    for i in data_trim:
+        single_data = {
+            "timeseries": str(i.date)[:10],
+            "nsp": round(i.normSaltPassage, 3),
+            "ndp": round(i.normDP, 3),
+            "npf": round(i.normPermFlow, 3)
+        }
+        json_table['data'].append(single_data)
 
 
-        return Response(json_table)
-    else:
-        return Response({'status_code': 403})
+    return Response(json_table)
+    # else:
+    #     return Response({'status_code': 403})
 # View all Plants: http://127.0.0.1:8000/plant/addTsData/
 @api_view(['POST'])
 def addTsData(request):
