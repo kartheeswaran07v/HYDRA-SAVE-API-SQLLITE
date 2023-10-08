@@ -68,10 +68,11 @@ def linear_graph(y):
 
 
 def ts_data_date(fromDate, toDate, stageId):
-    from_data = timeSeriesData.objects.filter(date=fromDate, stageId=stageId).first()
-    to_data = timeSeriesData.objects.filter(date=toDate, stageId=stageId).first()
+    # from_data = timeSeriesData.objects.filter(date=fromDate, stageId=stageId).first()
+    # to_data = timeSeriesData.objects.filter(date=toDate, stageId=stageId).first()
+    range_data = timeSeriesData.objects.filter(date__range=[fromDate, toDate], stageId=stageId)
 
-    return from_data.feedConc, to_data.feedConc
+    return range_data
 
 
 # a = ts_data_date('2018-03-13', '2018-04-06')

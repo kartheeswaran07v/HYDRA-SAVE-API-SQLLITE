@@ -33,6 +33,7 @@ class userMaster(models.Model):
     remarks = models.CharField(max_length=45, null=True)
     logo = models.ImageField(blank=True)
     mobileNo = models.CharField(max_length=45)
+    cookies = models.CharField(max_length=100, default="ABCDEFGH")
 
     def __str__(self):
         return self.firstName
@@ -72,7 +73,7 @@ class trainMaster(models.Model):
     
     
     def __str__(self):
-        return self.trainName
+        return f"{self.trainName}-{self.plantId.plantUniqueId}"
 
 class passMaster(models.Model):
     random_decimal = random.random()
@@ -84,7 +85,7 @@ class passMaster(models.Model):
     passUniqueId = models.CharField(max_length=45, unique=True)
 
     def __str__(self):
-        return self.passName
+        return self.passUniqueId
 
 class stageMaster(models.Model):
     passId = models.ForeignKey(passMaster, related_name='stages', on_delete=models.CASCADE)
@@ -274,6 +275,9 @@ class timeSeriesData(models.Model):
     normDP = models.FloatField(blank=True, null=True)
     remarks = models.CharField(max_length=500, blank=True, null=True) 
     energy = models.FloatField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.stageId.stageUniqueId}-{self.date}"
 
 
 class referenceData(models.Model):

@@ -99,8 +99,16 @@ def checkPassword(request):
         "firstName": user.firstName,
         "lastName": ""
     }
+    response = Response(json_)
+    if isCorrectPW:
+        random_decimal = random.random()
+        random_int = round(random_decimal*10**6)
+        user.cookies = random_int
+        user.save()
+        response = Response({"message": "success"})
+        response.set_cookie(key='token', value=random_int)
 
-    return Response(json_)
+    return response
 
 
 # Send OTP: endpoint: http://127.0.0.1:8000/user/register-otp/
@@ -316,10 +324,11 @@ def addPlant(request):
 def tsData(request):
     # plants = plantMaster.objects.filter(createdById=userMaster.objects.get(id=1)).all()
     # serializer = tsPlantSerializer(plants, many=True)
-    param = request.data['param']
+    # param = request.data['param']
     stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
-    tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
-    data_trim = tsDatas[:100]
+    # tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
+    # data_trim = tsDatas[:100]
+    data_trim = ts_data_date(request.data['from'], request.data['to'], stageId=stage_element)
     # json_data_sspn = {param: [],
     #                     'linear': [],
     #                     'timeseries': []}
@@ -362,66 +371,68 @@ def tsData(request):
     json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
     # serializer = tsDataSerializer(tsDatas, many=True)
 
-    a = ts_data_date('2018-03-13', '2018-04-06')
-    print(a)
     return Response(json_graph)
 
 
 # View all Plants: http://127.0.0.1:8000/plant/tsDataTable
 @api_view(['POST'])
 def tsDataTable(request):
-    stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
-    tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
-    data_trim = tsDatas[:10]
+    cookie = request.COOKIES['token']
+    if cookie == userMaster.objects.get(emailID=request.data['emailID']).cookies:
+        stage_element = stageMaster.objects.filter(stageUniqueId=request.data['stageId']).first()
+        # tsDatas = timeSeriesData.objects.filter(stageId=stage_element.id).all()
+        # data_trim = tsDatas[:10]
 
-    # json_table = {
-    #     "timeseries": [],
-    #     "nsp": [],
-    #     "npf": [],
-    #     "ndp": []
-    # }
+        # json_table = {
+        #     "timeseries": [],
+        #     "nsp": [],
+        #     "npf": [],
+        #     "ndp": []
+        # }
 
-    # for i in data_trim:
-    #     json_table['nsp'].append(round(i.normSaltPassage, 3))
-    #     json_table['npf'].append(round(i.normPermFlow, 3))
-    #     json_table['ndp'].append(round(i.normDP, 3))
-    #     json_table['timeseries'].append(str(i.date)[:10])
-    
-    a = ts_data_date('2018-03-13', '2018-04-06', stageId=stage_element)
-    print(a)   
-    json_table = {
-        "data": [],
-        "columns": [
-            {
-                "dataField": "timeseries",
-                "text": "Time Series"
-            },
-            {
-                "dataField": "nsp",
-                "text": "NSP"
-            },
-            {
-                "dataField": "ndp",
-                "text": "NDP"
-            },
-            {
-                "dataField": "npf",
-                "text": "NPF"
-            }
-        ]
-    }
-
-    for i in data_trim:
-        single_data = {
-            "timeseries": str(i.date)[:10],
-            "nsp": round(i.normSaltPassage, 3),
-            "ndp": round(i.normDP, 3),
-            "npf": round(i.normPermFlow, 3)
+        # for i in data_trim:
+        #     json_table['nsp'].append(round(i.normSaltPassage, 3))
+        #     json_table['npf'].append(round(i.normPermFlow, 3))
+        #     json_table['ndp'].append(round(i.normDP, 3))
+        #     json_table['timeseries'].append(str(i.date)[:10])
+        
+        data_trim = ts_data_date(request.data['from'], request.data['to'], stageId=stage_element)
+        # print(a)   
+        json_table = {
+            "data": [],
+            "columns": [
+                {
+                    "dataField": "timeseries",
+                    "text": "Time Series"
+                },
+                {
+                    "dataField": "nsp",
+                    "text": "NSP"
+                },
+                {
+                    "dataField": "ndp",
+                    "text": "NDP"
+                },
+                {
+                    "dataField": "npf",
+                    "text": "NPF"
+                }
+            ]
         }
-        json_table['data'].append(single_data)
 
-    return Response(json_table)
+        for i in data_trim:
+            single_data = {
+                "timeseries": str(i.date)[:10],
+                "nsp": round(i.normSaltPassage, 3),
+                "ndp": round(i.normDP, 3),
+                "npf": round(i.normPermFlow, 3)
+            }
+            json_table['data'].append(single_data)
 
+
+        return Response(json_table)
+    else:
+        return Response({'status_code': 403})
 # View all Plants: http://127.0.0.1:8000/plant/addTsData/
 @api_view(['POST'])
 def addTsData(request):
@@ -551,45 +562,45 @@ def dropdown(request):
 
 
 # def addData():
-    filename = 'C:\\Users\\FCC\\Documents\\NITTO\\NITTO Code\\HYDRA-SAVE API SQLLITE\\hydrasaveAPI\\norm_data_clean_2.csv'
-    fields = []
-    rows = []
+#     filename = 'C:\\Users\\FCC\\Documents\\NITTO\\NITTO Code\\HYDRA-SAVE API SQLLITE\\hydrasaveAPI\\stage_norm_data_u2.csv'
+#     fields = []
+#     rows = []
 
-    with open(filename, 'r') as csvfile:
-        csvreader = csv.reader(csvfile)
-        fields_ = next(csvreader)
-        for row in csvreader:
-            rows.append(row)
+#     with open(filename, 'r') as csvfile:
+#         csvreader = csv.reader(csvfile)
+#         fields_ = next(csvreader)
+#         for row in csvreader:
+#             rows.append(row)
 
 
 
-    print(fields_)
-    # print(rows[:6])
+#     print(fields_)
+#     # print(rows[:6])
 
-    for row in rows:
-        e = row[1][:10]
-        d = datetime.strptime(e, '%d-%m-%Y')
-        timeSeriesData.objects.create(
-            date=d,
-            time=datetime.now(),
-            turbidity=row[3],
-            sdi=row[4],
-            pH=row[5],
-            temperature=row[6],
-            feedConc=row[7],
-            permConc=row[8],
-            rejectConc=0,
-            feedFlow=row[9],
-            permFlow=row[10],
-            rejectFlow=0,
-            feedPres=row[11],
-            permPres=row[12],
-            rejectPres=row[13],
-            normSaltPassage=row[14],
-            normPermFlow=row[15],
-            normDP=row[16],
-            stageId=stageMaster.objects.get(stageUniqueId="3456")
-        )
+#     for row in rows:
+#         # e = row[1][:10]
+#         # d = datetime.strptime(e, '%d-%m-%Y')
+#         timeSeriesData.objects.create(
+#             date=row[0],
+#             time=datetime.now(),
+#             turbidity=row[1],
+#             sdi=row[2],
+#             pH=row[3],
+#             temperature=row[4],
+#             feedConc=row[5],
+#             permConc=row[6],
+#             rejectConc=0,
+#             feedFlow=row[7],
+#             permFlow=row[8],
+#             rejectFlow=0,
+#             feedPres=row[9],
+#             permPres=row[10],
+#             rejectPres=row[11],
+#             normSaltPassage=row[12],
+#             normPermFlow=row[13],
+#             normDP=row[14],
+#             stageId=stageMaster.objects.get(stageUniqueId=row[15])
+#         )
 
 # # View all Plants: http://127.0.0.1:8000/plant/addData
 # @api_view(['POST'])
@@ -618,6 +629,25 @@ def addSetPoints(request):
             print('data invalid')
     
     return Response({"message": "success"})
+
+
+
+# View all Plants: http://127.0.0.1:8000/api/cookies
+@api_view(['POST'])
+def cookies(request):
+    user_element = userMaster.objects.get(emailID=request.data['emailID'])
+    random_decimal = random.random()
+    random_int = round(random_decimal*10**6)
+    random_uid = str(uuid.uuid3)
+    user_element.cookies = random_int
+    user_element.save()
+
+    response = Response({"message": "success"})
+    response.set_cookie(key='token', value=random_int)
+
+    # Response.set_cookie(self='',key='token', value=random_uid)
+
+    return response
 
 
 
