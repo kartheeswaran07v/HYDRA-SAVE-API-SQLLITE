@@ -211,16 +211,23 @@ def registration(request):
 
         if serializer.is_valid():
             serializer.save(regionID=region_, industryId=industry_)
+            json_ = {
+                "status": "OK",
+                "status_code": 200,
+                "status_message": "Record created in Database",
+                "username": data_['emailID'],
+                "isWebmail": checkWebmail(data_['emailID'])
+            }
         else:
             print('data not valid')
 
-        json_ = {
-            "status": "OK",
-            "status_code": 200,
-            "status_message": "Record created in Database",
-            "username": data_['emailID'],
-            "isWebmail": checkWebmail(data_['emailID'])
-        }
+            json_ = {
+                "status": "OK",
+                "status_code": 400,
+                "status_message": "Error in data provided",
+                "username": data_['emailID'],
+                "isWebmail": checkWebmail(data_['emailID'])
+            }
 
 
     

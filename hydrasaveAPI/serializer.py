@@ -9,7 +9,7 @@ class PlantSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model=userMaster
-        fields = ['emailID', 'password', 'firstName', 'address', 'city', 'country', 'pincode', 'companyName', 'designation', 'isActive', 'remarks', 'mobileNo']
+        fields = ['emailID', 'password', 'firstName', 'address', 'city', 'country', 'pincode', 'companyName', 'designation', 'mobileNo']
 
 
 class elementSerializer(serializers.ModelSerializer):
