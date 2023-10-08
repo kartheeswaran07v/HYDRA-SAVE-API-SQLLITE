@@ -111,6 +111,14 @@ def checkPassword(request):
     return response
 
 
+# Logout: endpoitn: http://127.0.0.1:8000/api/user/logout
+def logOut(request):
+    emailID = request.data['emailID']
+    user_ = userMaster.objects.get(emailID=emailID)
+    user_.cookies = round((random.random()*10**6))
+    user_.save()
+    return Response({'message': "logout success", "status": "OK", "status_code": 200})
+
 # Send OTP: endpoint: http://127.0.0.1:8000/user/register-otp/
 @api_view(['POST'])
 def sendOTP(request):
