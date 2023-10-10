@@ -89,11 +89,13 @@ def checkPassword(request):
     user = userMaster.objects.get(emailID=username)
     if user.password == data['password']:
         isCorrectPW = True
+        code_ = 200
     else:
         isCorrectPW = False
+        code_ = 401
     json_ = {
         "status": "OK",
-        "status_code": 200,
+        "status_code": code_,
         "isCorrectPW": isCorrectPW,
         "username": user.id, 
         "email": user.emailID,
@@ -466,7 +468,7 @@ def addTsData(request):
     ts_data = request.data['tsData']
     if stage_element:
         for data in ts_data:
-            # timeSeriesData.objects.create(stageId=stage_element, **data)
+            data['normSaltPassage'],data['normPermFlow'],data['normDP'], data['rejectConc'], data['feedFlow']   = getNormData(**data)['nsp'], getNormData(**data)['npf'], getNormData(**data)['ndp'], None, None
             timeSeriesData.objects.update_or_create(stageId=stage_element, date=data['date'], defaults=data)
         json_ = {
             "status": "OK",
@@ -484,52 +486,39 @@ def addTsData(request):
 
 
 
-def get_param_details(param, param_object):
-    percent_param = ((float(param)-float(param_object.reference))/param)*100
-    if float(param_object.low) < percent_param <= float(param_object.high):
-        status = 'normal'
-    elif percent_param <= float(param_object.highhigh):
-        status = 'high'
-    elif percent_param > float(param_object.highhigh):
-        status = 'highhigh'
-    elif float(param_object.lowlow) <= percent_param < float(param_object.low):
-        status = 'low'
-    elif float(param_object.lowlow) > percent_param:
-        status = 'lowlow'
-    
-    return {'percent_value': percent_param, 'status': status}
 
 
-# View all Plants: http://127.0.0.1:8000/plant/setPoint
-@api_view(['POST'])
-def setPoint(request):
-    plant_element = plantMaster.objects.get(plantUniqueId=request.data['plantUniqueId'])
-    train_element = trainMaster.objects.get(plantId=plant_element, trainUniqueId=request.data['trainName'])
-    stage_elements = stageMaster.objects.filter(passId__trainId=train_element).all()
-    train_data = []
-    for stage in stage_elements:
-        set_point_nsp = setPoints.objects.filter(stageId=stage, parameter='NSP').first()
-        set_point_npf = setPoints.objects.filter(stageId=stage, parameter='NPF').first()
-        set_point_ndp = setPoints.objects.filter(stageId=stage, parameter='NDP').first()
-        ts_data_latest = timeSeriesData.objects.filter(stageId=stage).last()
-        nsp, npf, ndp = ts_data_latest.normSaltPassage, ts_data_latest.normPermFlow, ts_data_latest.normDP
-        stage_set_dict = {
-            "stageUniqueId": stage.stageUniqueId,
-            "data": {
-                "NDP": get_param_details(ndp, set_point_ndp),
-                "NSP": get_param_details(nsp, set_point_nsp),
-                "NPF": get_param_details(npf, set_point_npf)
-            },
-            "data2": [["NDP", get_param_details(ndp, set_point_ndp)['percent_value']], ["NSP", get_param_details(nsp, set_point_nsp)['percent_value']], ["NPF", get_param_details(npf, set_point_npf)['percent_value']]]
-        }
-        train_data.append(stage_set_dict)
 
-    json_ = {
-        "status": "OK",
-        "status_code": 200,
-        "data": train_data
-    }
-    return Response(json_)
+# # View all Plants: http://127.0.0.1:8000/plant/setPoint
+# @api_view(['POST'])
+# def setPoint(request):
+#     plant_element = plantMaster.objects.get(plantUniqueId=request.data['plantUniqueId'])
+#     train_element = trainMaster.objects.get(plantId=plant_element, trainUniqueId=request.data['trainName'])
+#     stage_elements = stageMaster.objects.filter(passId__trainId=train_element).all()
+#     train_data = []
+#     for stage in stage_elements:
+#         set_point_nsp = setPoints.objects.filter(stageId=stage, parameter='NSP').first()
+#         set_point_npf = setPoints.objects.filter(stageId=stage, parameter='NPF').first()
+#         set_point_ndp = setPoints.objects.filter(stageId=stage, parameter='NDP').first()
+#         ts_data_latest = timeSeriesData.objects.filter(stageId=stage).last()
+#         nsp, npf, ndp = ts_data_latest.normSaltPassage, ts_data_latest.normPermFlow, ts_data_latest.normDP
+#         stage_set_dict = {
+#             "stageUniqueId": stage.stageUniqueId,
+#             "data": {
+#                 "NDP": get_param_details(ndp, set_point_ndp),
+#                 "NSP": get_param_details(nsp, set_point_nsp),
+#                 "NPF": get_param_details(npf, set_point_npf)
+#             },
+#             "data2": [["NDP", get_param_details(ndp, set_point_ndp)['percent_value']], ["NSP", get_param_details(nsp, set_point_nsp)['percent_value']], ["NPF", get_param_details(npf, set_point_npf)['percent_value']]]
+#         }
+#         train_data.append(stage_set_dict)
+
+#     json_ = {
+#         "status": "OK",
+#         "status_code": 200,
+#         "data": train_data
+#     }
+#     return Response(json_)
 
 
 # View all Plants: http://127.0.0.1:8000/plant/dropdown
@@ -649,11 +638,12 @@ def addSetPoints(request):
     stage_element = stageMaster.objects.get(stageUniqueId=request.data['stageId'])
     for data_ in request.data['data']:
         print(data_)
-        serializer = addSetPointsSerializer(data=data_)
-        if serializer.is_valid():
-            serializer.save(stageId=stage_element)
-        else:
-            print('data invalid')
+        # serializer = addSetPointsSerializer(data=data_)
+        setPoints.objects.update_or_create(stageId=stage_element, parameter=data_['parameter'], defaults=data_)
+        # if serializer.is_valid():
+        #     serializer.save(stageId=stage_element)
+        # else:
+        #     print('data invalid')
     
     return Response({"message": "success"})
 
@@ -677,6 +667,21 @@ def addSetPoints(request):
 #     return response
 
 
+# View all Plants: http://127.0.0.1:8000/api/plant/gaugeData
+@api_view(['GET'])
+def gaugeData(request):
+    train_element = trainMaster.objects.get(trainUniqueId=request.data['trainId'])
+    stages = stageMaster.objects.filter(passId__trainId=train_element).all()
+    dashboard_data = []
+    for stage in stages:
+        ts_data = timeSeriesData.objects.filter(stageId=stage).all()
+        set_points = setPoints.objects.filter(stageId=stage).all()
+        if len(ts_data) > 0 and len(set_points) > 0:
+            dashboard_data.append(dashData(stage))
+        # else:
+        #     print(stage.stageUniqueId)
+    
+    return Response({"data": dashboard_data})
 
 
 

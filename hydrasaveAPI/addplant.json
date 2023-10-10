@@ -1,52 +1,34 @@
 {
-    "data": [
+  "dashboard": [
+    {
+      "data": [
         {
-            "timeseries": "2023-10-01",
-            "sspn": "1.0",
-            "qspn": "1.0",
-            "normDP": "1.0"
+            "value": 0,
+            "ranges": [-10, 0, 10, 20],
+            "colors": ["#DB454C", "#86D1F2", "#171C8F", "#60B044"],
+            "max": 20,
+            "min": -20,
+            "label": "NSP"
         },
         {
-            "timeseries": "2023-10-02",
-            "sspn": "2.0",
-            "qspn": "2.0",
-            "normDP": "2.0"
+            "value": 0.9,
+            "ranges": [-1, 0, 1, 2],
+            "colors": ["#171C8F", "#86D1F2", "#DB454C", "#60B044"],
+            "max": 2,
+            "min": -2,
+            "label": "NPF"
         },
         {
-            "timeseries": "2023-10-03",
-            "sspn": "1.0",
-            "qspn": "1.0",
-            "normDP": "1.0"
-        },
-        {
-            "timeseries": "2023-10-04",
-            "sspn": "2.0",
-            "qspn": "2.0",
-            "normDP": "2.0"
-        },
-        {
-            "timeseries": "2023-10-05",
-            "sspn": "1.0",
-            "qspn": "1.0",
-            "normDP": "1.0"
+            "value": -1.5,
+            "ranges": [-1, 0, 1, 2],
+            "colors": ["#DB454C", "#86D1F2", "#171C8F", "#60B044"],
+            "max": 2,
+            "min": -2,
+            "label": "NDP"
         }
-    ],
-    "columns": [
-        {
-            "dataField": "timeseries",
-            "text": "Time Series"
-        },
-        {
-            "dataField": "sspn",
-            "text": "SSPN"
-        },
-        {
-            "dataField": "qspn",
-            "text": "QSPN"
-        },
-        {
-            "dataField": "normDP",
-            "text": "Norm DP"
-        }
-    ]
+      ],
+      "status": "ok",
+      "stageName": "s1"
+    }
+  ]
 }
