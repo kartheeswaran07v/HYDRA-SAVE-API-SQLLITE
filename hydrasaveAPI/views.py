@@ -577,6 +577,23 @@ def dropdown(request):
     return Response(response_dict)
 
 
+
+# def addSetPointsLarge():
+    filename = 'C:\\Users\\FCC\\Documents\\NITTO\\NITTO Code\\HYDRA-SAVE API SQLLITE\\hydrasaveAPI\\setpoints_dummy.csv'
+    fields_set = []
+    rows_set = []
+    with open(filename, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        fields_set = next(csvreader)
+        for row in csvreader:
+            rows_set.append(row)
+
+    for data in rows_set:
+        print(data[6], data[0], data[1])
+        setPoints.objects.create(lowlow=data[0], low=data[1], reference=data[2], high=data[3], 
+                                 highhigh=data[4], parameter=data[5], stageId=stageMaster.objects.get(stageUniqueId=data[6]))
+
+
 # def addData():
 #     filename = 'C:\\Users\\FCC\\Documents\\NITTO\\NITTO Code\\HYDRA-SAVE API SQLLITE\\hydrasaveAPI\\stage_norm_data_u2.csv'
 #     fields = []
@@ -618,11 +635,11 @@ def dropdown(request):
 #             stageId=stageMaster.objects.get(stageUniqueId=row[15])
 #         )
 
-# # View all Plants: http://127.0.0.1:8000/plant/addData
-# @api_view(['POST'])
-# def addLargeData(request):
-#     addData()
-#     return Response({"message": "success"})
+# View all Plants: http://127.0.0.1:8000/plant/addData
+@api_view(['POST'])
+def addLargeData(request):
+    # addSetPointsLarge()
+    return Response({"message": "success"})
 
 # View all Plants: http://127.0.0.1:8000/api/plant/get/setPoints
 @api_view(['POST'])

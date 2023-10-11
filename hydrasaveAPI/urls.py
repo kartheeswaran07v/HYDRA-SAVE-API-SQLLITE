@@ -20,7 +20,7 @@ urlpatterns = [
     path('api/plant/getSetPoints', views.getSetPoints, name='Set Points'),
     path('api/plant/addSetPoints', views.addSetPoints, name='Add Set Points'),
     path('api/plant/tsDataTable', views.tsDataTable, name='Table Data'),
-    path('api/plant/gaugeData', views.gaugeData, name='Gauge Data')
+    path('api/plant/gaugeData', views.gaugeData, name='Gauge Data'),
     # path('api/cookies', views.cookies, name='cookies'),
-    # path('api/addLargeData', views.addLargeData, name="addLargeData")
+    path('api/addLargeData', views.addLargeData, name="addLargeData")
 ]
