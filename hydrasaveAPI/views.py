@@ -354,58 +354,7 @@ def tsData(request):
     # json_data_sspn = {param: [],
     #                     'linear': [],
     #                     'timeseries': []}
-    if len(data_trim) > 0:
-        json_graph = {
-            "data": [
-                {
-                    "nsp": [],
-                    "linear": [],
-                    "timeseries": []
-                },
-                {
-                    "npf":[],
-                    "linear":[],
-                    "timeseries": []
-                },
-                {
-                    "ndp": [],
-                    "linear":[],
-                    "timeseries": []
-                    
-                }
-            ],
-            "statisticalData": []
-        }
-
-        for i in data_trim:
-            # json_data_sspn[param].append(round(i.__dict__[param], 3))
-            # json_data_sspn['timeseries'].append(str(i.date)[:10])
-            json_graph['data'][0]['nsp'].append(round(i.normSaltPassage, 3))
-            json_graph['data'][1]['npf'].append(round(i.normPermFlow, 3))
-            json_graph['data'][2]['ndp'].append(round(i.normDP, 3))
-            
-            json_graph['data'][0]['timeseries'].append(str(i.date)[:10])
-            json_graph['data'][1]['timeseries'].append(str(i.date)[:10])
-            json_graph['data'][2]['timeseries'].append(str(i.date)[:10])
-        
-        # json_data_sspn['linear'] = linear_graph(json_data_sspn[param])[0]
-        try:
-            json_graph['data'][0]['linear'] = linear_graph(json_graph['data'][0]['nsp'])[0]
-            json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
-            json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
-            # serializer = tsDataSerializer(tsDatas, many=True)
-
-            # Statistical Data
-            json_graph['statisticalData'].append(statisticalData(json_graph['data'][0]['nsp']))
-            json_graph['statisticalData'].append(statisticalData(json_graph['data'][1]['npf']))
-            json_graph['statisticalData'].append(statisticalData(json_graph['data'][2]['ndp']))
-        except ZeroDivisionError:
-            pass
-    else:
-        json_graph = {
-            "data": [],
-            "statisticalData": []
-        }
+    json_graph = getTsGraphData(data_trim)
 
     return Response(json_graph)
 
@@ -584,8 +533,31 @@ def dropdown(request):
 
     return Response(response_dict)
 
+@api_view(['POST'])
+def dashboardDropdown(request):
+    plant_elements = plantMaster.objects.filter(createdById=userMaster.objects.get(emailID=request.data['username'])).all()
+    plant_list = []
+    for i in plant_elements:
+        plant_dict = {i.plantUniqueId: i.plantName}
+        plant_list.append(plant_dict)
+        # train_elements = trainMaster.objects.filter(plantId=i).all()
+        # train_list.append(train_elements)
+    train_dict = {}
+    for i in plant_elements:
+        train_elements = trainMaster.objects.filter(plantId=i).all()
+        train_list = []
+        for train in train_elements:
+            train_dict_ = {train.trainUniqueId: train.trainName}
+            train_list.append(train_dict_)
+        
+        train_dict[i.plantUniqueId] = train_list
 
+    response_dict = {
+        "plants": plant_list,
+        "trains": train_dict
+    }
 
+    return Response(response_dict)
 # def addSetPointsLarge():
     filename = 'C:\\Users\\FCC\\Documents\\NITTO\\NITTO Code\\HYDRA-SAVE API SQLLITE\\hydrasaveAPI\\setpoints_dummy.csv'
     fields_set = []
@@ -695,18 +667,58 @@ def addSetPoints(request):
 # View all Plants: http://127.0.0.1:8000/api/plant/gaugeData
 @api_view(['GET'])
 def gaugeData(request):
-    train_element = trainMaster.objects.get(trainUniqueId=request.data['trainId'])
-    stages = stageMaster.objects.filter(passId__trainId=train_element).all()
-    dashboard_data = []
-    for stage in stages:
-        ts_data = timeSeriesData.objects.filter(stageId=stage).all()
-        set_points = setPoints.objects.filter(stageId=stage).all()
-        if len(ts_data) > 0 and len(set_points) > 0:
-            dashboard_data.append(dashData(stage))
-        # else:
-        #     print(stage.stageUniqueId)
-    
-    return Response({"data": dashboard_data})
+    # print(request.data.keys())
+    if 'trainId' in request.data.keys():
+        train_element = trainMaster.objects.get(trainUniqueId=request.data['trainId'])
+        stages = stageMaster.objects.filter(passId__trainId=train_element).all()
+        dashboard_data = []
+        for stage in stages:
+            ts_data = timeSeriesData.objects.filter(stageId=stage).all()
+            set_points = setPoints.objects.filter(stageId=stage).all()
+            if len(ts_data) > 0 and len(set_points) > 0:
+                dashboard_data.append(dashData(stage))
+        return Response({"data": dashboard_data})
+    elif 'emailId' in request.data.keys():
+        plant_elements = plantMaster.objects.filter(createdById=userMaster.objects.get(emailID=request.data['emailId'])).all()
+        train_element = trainMaster.objects.filter(plantId=plant_elements[0]).first()
+        stages = stageMaster.objects.filter(passId__trainId=train_element).all()
+        dashboard_data = []
+        for stage in stages:
+            ts_data = timeSeriesData.objects.filter(stageId=stage).all()
+            set_points = setPoints.objects.filter(stageId=stage).all()
+            if len(ts_data) > 0 and len(set_points) > 0:
+                dashboard_data.append(dashData(stage))
+        plant_list = []
+        for i in plant_elements:
+            plant_dict = {i.plantUniqueId: i.plantName}
+            plant_list.append(plant_dict)
+            # train_elements = trainMaster.objects.filter(plantId=i).all()
+            # train_list.append(train_elements)
+        train_dict = {}
+        for i in plant_elements:
+            train_elements = trainMaster.objects.filter(plantId=i).all()
+            train_list = []
+            for train in train_elements:
+                train_dict_ = {train.trainUniqueId: train.trainName}
+                train_list.append(train_dict_)
+            
+            train_dict[i.plantUniqueId] = train_list
+
+        response_dict = {
+            "plants": plant_list,
+            "trains": train_dict
+        }
+
+        data_trim = timeSeriesData.objects.filter(stageId=stages[0]).all().order_by("-date")[:7]
+        # json_data_sspn = {param: [],
+        #                     'linear': [],
+        #                     'timeseries': []}
+        json_graph = getTsGraphData(data_trim)
+
+
+        return Response({"dashboardDatas": dashboard_data, "dropdown": response_dict, "defaultStageID":stages[0].stageUniqueId, "timeseries": json_graph})
+    else:
+        return Response({"message": "bad request"})
 
 
 
