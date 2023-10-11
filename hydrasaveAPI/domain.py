@@ -226,7 +226,7 @@ def dashData(stage_element):
     json_ = {
       "data": [
         {
-            "value": nsp_percent,
+            "value": round(nsp_percent, 3),
             "ranges": [nsp_set.low, nsp_set.high, nsp_set.highhigh, nsp_set.highhigh + 10],
             "colors": colors,
             "max": nsp_set.highhigh + 10,
@@ -234,7 +234,7 @@ def dashData(stage_element):
             "label": "NSP"
         },
         {
-            "value": npf_percent,
+            "value": round(npf_percent,3),
             "ranges": [npf_set.low, npf_set.high, npf_set.highhigh, npf_set.highhigh + 10],
             "colors": colors_npf,
             "max": npf_set.highhigh + 10,
@@ -242,7 +242,7 @@ def dashData(stage_element):
             "label": "NPF"
         },
         {
-            "value": ndp_percent,
+            "value": round(ndp_percent,3),
             "ranges": [ndp_set.low, ndp_set.high, ndp_set.highhigh, ndp_set.highhigh + 10],
             "colors": colors,
             "max": ndp_set.highhigh + 10,

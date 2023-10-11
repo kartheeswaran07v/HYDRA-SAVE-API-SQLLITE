@@ -351,53 +351,58 @@ def tsData(request):
     # json_data_sspn = {param: [],
     #                     'linear': [],
     #                     'timeseries': []}
+    if len(data_trim) > 0:
+        json_graph = {
+            "data": [
+                {
+                    "nsp": [],
+                    "linear": [],
+                    "timeseries": []
+                },
+                {
+                    "npf":[],
+                    "linear":[],
+                    "timeseries": []
+                },
+                {
+                    "ndp": [],
+                    "linear":[],
+                    "timeseries": []
+                    
+                }
+            ],
+            "statisticalData": []
+        }
 
-    json_graph = {
-        "data": [
-            {
-                "nsp": [],
-                "linear": [],
-                "timeseries": []
-            },
-            {
-                "npf":[],
-                "linear":[],
-                "timeseries": []
-            },
-            {
-                "ndp": [],
-                "linear":[],
-                "timeseries": []
-                
-            }
-        ],
-        "statisticalData": []
-    }
-
-    for i in data_trim:
-        # json_data_sspn[param].append(round(i.__dict__[param], 3))
-        # json_data_sspn['timeseries'].append(str(i.date)[:10])
-        json_graph['data'][0]['nsp'].append(round(i.normSaltPassage, 3))
-        json_graph['data'][1]['npf'].append(round(i.normPermFlow, 3))
-        json_graph['data'][2]['ndp'].append(round(i.normDP, 3))
+        for i in data_trim:
+            # json_data_sspn[param].append(round(i.__dict__[param], 3))
+            # json_data_sspn['timeseries'].append(str(i.date)[:10])
+            json_graph['data'][0]['nsp'].append(round(i.normSaltPassage, 3))
+            json_graph['data'][1]['npf'].append(round(i.normPermFlow, 3))
+            json_graph['data'][2]['ndp'].append(round(i.normDP, 3))
+            
+            json_graph['data'][0]['timeseries'].append(str(i.date)[:10])
+            json_graph['data'][1]['timeseries'].append(str(i.date)[:10])
+            json_graph['data'][2]['timeseries'].append(str(i.date)[:10])
         
-        json_graph['data'][0]['timeseries'].append(str(i.date)[:10])
-        json_graph['data'][1]['timeseries'].append(str(i.date)[:10])
-        json_graph['data'][2]['timeseries'].append(str(i.date)[:10])
-    
-    # json_data_sspn['linear'] = linear_graph(json_data_sspn[param])[0]
-    try:
-        json_graph['data'][0]['linear'] = linear_graph(json_graph['data'][0]['nsp'])[0]
-        json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
-        json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
-        # serializer = tsDataSerializer(tsDatas, many=True)
+        # json_data_sspn['linear'] = linear_graph(json_data_sspn[param])[0]
+        try:
+            json_graph['data'][0]['linear'] = linear_graph(json_graph['data'][0]['nsp'])[0]
+            json_graph['data'][1]['linear'] = linear_graph(json_graph['data'][1]['npf'])[0]
+            json_graph['data'][2]['linear'] = linear_graph(json_graph['data'][2]['ndp'])[0]
+            # serializer = tsDataSerializer(tsDatas, many=True)
 
-        # Statistical Data
-        json_graph['statisticalData'].append(statisticalData(json_graph['data'][0]['nsp']))
-        json_graph['statisticalData'].append(statisticalData(json_graph['data'][1]['npf']))
-        json_graph['statisticalData'].append(statisticalData(json_graph['data'][2]['ndp']))
-    except ZeroDivisionError:
-        pass
+            # Statistical Data
+            json_graph['statisticalData'].append(statisticalData(json_graph['data'][0]['nsp']))
+            json_graph['statisticalData'].append(statisticalData(json_graph['data'][1]['npf']))
+            json_graph['statisticalData'].append(statisticalData(json_graph['data'][2]['ndp']))
+        except ZeroDivisionError:
+            pass
+    else:
+        json_graph = {
+            "data": [],
+            "statisticalData": []
+        }
 
     return Response(json_graph)
 
