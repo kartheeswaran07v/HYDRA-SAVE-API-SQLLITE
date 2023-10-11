@@ -90,9 +90,11 @@ def checkPassword(request):
     if user.password == data['password']:
         isCorrectPW = True
         code_ = 200
+        companyName = user.companyName
     else:
         isCorrectPW = False
         code_ = 401
+        companyName = ""
     json_ = {
         "status": "OK",
         "status_code": code_,
@@ -100,7 +102,8 @@ def checkPassword(request):
         "username": user.id, 
         "email": user.emailID,
         "firstName": user.firstName,
-        "lastName": ""
+        "lastName": "",
+        "companyName": companyName
     }
     response = Response(json_)
 
