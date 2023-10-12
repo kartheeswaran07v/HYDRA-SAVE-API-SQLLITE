@@ -665,7 +665,7 @@ def addSetPoints(request):
 
 
 # View all Plants: http://127.0.0.1:8000/api/plant/gaugeData
-@api_view(['GET'])
+@api_view(['POST'])
 def gaugeData(request):
     # print(request.data.keys())
     if 'trainId' in request.data.keys():
@@ -677,7 +677,7 @@ def gaugeData(request):
             set_points = setPoints.objects.filter(stageId=stage).all()
             if len(ts_data) > 0 and len(set_points) > 0:
                 dashboard_data.append(dashData(stage))
-        return Response({"data": dashboard_data})
+        return Response({"dashboardDatas": dashboard_data})
     elif 'emailId' in request.data.keys():
         plant_elements = plantMaster.objects.filter(createdById=userMaster.objects.get(emailID=request.data['emailId'])).all()
         train_element = trainMaster.objects.filter(plantId=plant_elements[0]).first()
