@@ -469,6 +469,7 @@ def addTsData(request):
         for data in ts_data:
             data['normSaltPassage'],data['normPermFlow'],data['normDP'], data['rejectConc'], data['feedFlow']   = getNormData(**data)['nsp'], getNormData(**data)['npf'], getNormData(**data)['ndp'], None, None
             data['date'] = data['date'][:10]
+            data['time'] = "06:47:40"
             timeSeriesData.objects.update_or_create(stageId=stage_element, date=data['date'], defaults=data)
         json_ = {
             "status": "OK",
