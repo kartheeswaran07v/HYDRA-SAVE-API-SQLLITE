@@ -304,6 +304,7 @@ def addPlant(request):
     pl_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
     plant_elements = plantMaster.objects.filter(createdById=user_)
     validated_data2['plantUniqueId'] = f"PLANT-{len(plant_elements)+1}-{pl_string}"
+    validated_data2['modeOfInput'] = validated_data2['modeOfInput'][0]
     plant = plantMaster.objects.create(createdById=user_, **validated_data2)
     for train_data in trains_data2:
         # print(train_data)
