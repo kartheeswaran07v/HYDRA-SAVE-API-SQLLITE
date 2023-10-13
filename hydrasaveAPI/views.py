@@ -324,6 +324,11 @@ def addPlant(request):
                 pass_data['passName'] = f"Pass {p_index}"
                 pass_ = passMaster.objects.create(trainId=train, **pass_data)
                 for stage_data in stages_data:
+                    vfd = stage_data.pop('VFDEfficiency')
+                    motor = stage_data.pop('motorEfficiency')
+                    noe = stage_data.pop('numberOfElement')
+                    pupm = stage_data.pop('pumpEfficiency')
+                    s_name = stage_data.pop('stageName')
                     st_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
                     st_index = stages_data.index(stage_data) + 1
                     stage_data['stageUniqueId'] = f"STAGE-{st_index}-{st_string}"
