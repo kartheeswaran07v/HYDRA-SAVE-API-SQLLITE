@@ -329,20 +329,28 @@ def addPlant(request):
                     stage_data['stageNumber'] = f"Stage {st_index}"
                     elements_data = stage_data.pop('elementName_if')
                     stage_ = stageMaster.objects.create(passId=pass_, **stage_data)
-                    for element_data in elements_data:
-                        print(type(element_data))
-                        if type(element_data) == str:
+                    if type(elements_data) == list:
+                        for element_data in elements_data:
+                            print(type(element_data))
+                            if type(element_data) == str:
+                                el_data = {
+                                    "elementName_if": element_data,
+                                    "elementLocation_if": elements_data.index(element_data) + 1
+                                }
+                            elif type(element_data) == dict:
+                                el_data = element_data
+                            else:
+                                el_data = element_data
+                            print(el_data)
+                            print(element_data)
+                            elementMaster.objects.create(stageId=stage_, **el_data)
+                    elif type(elements_data) == str:
+                        for i in range(int(stage_data['elementsPerVessel_if'])):
                             el_data = {
-                                "elementName_if": element_data,
-                                "elementLocation_if": elements_data.index(element_data) + 1
-                            }
-                        elif type(element_data) == dict:
-                            el_data = element_data
-                        else:
-                            el_data = element_data
-                        print(el_data)
-                        print(element_data)
-                        elementMaster.objects.create(stageId=stage_, **el_data)
+                                    "elementName_if": elements_data,
+                                    "elementLocation_if": i + 1
+                                }
+                            elementMaster.objects.create(stageId=stage_, **el_data)
 
     # elif len(plant_element) > 0:
     #     json_ = {
