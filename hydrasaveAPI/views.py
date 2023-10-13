@@ -306,7 +306,7 @@ def addPlant(request):
     validated_data2['plantUniqueId'] = f"PLANT-{len(plant_elements)+1}-{pl_string}"
     plant = plantMaster.objects.create(createdById=user_, **validated_data2)
     for train_data in trains_data2:
-        print(train_data)
+        # print(train_data)
         t_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
         t_index = trains_data2.index(train_data) + 1
         passes_data = train_data.pop('passes')
@@ -314,22 +314,35 @@ def addPlant(request):
         train_data["trainNumber"] = t_index
         train = trainMaster.objects.create(plantId=plant, **train_data)
         for pass_data in passes_data:
-            p_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
-            p_index = passes_data.index(pass_data) + 1
-            pass_data['passUniqueId'] = f"PASS-{p_index}-{p_string}"
-            pass_data['passNumber'] = p_index
-            pass_data['passName'] = f"Pass {p_index}"
             stages_data = pass_data.pop('stages')
-            pass_ = passMaster.objects.create(trainId=train, **pass_data)
-            for stage_data in stages_data:
-                st_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
-                st_index = stages_data.index(stage_data) + 1
-                stage_data['stageUniqueId'] = f"STAGE-{st_index}-{st_string}"
-                stage_data['stageNumber'] = f"Stage {st_index}"
-                elements_data = stage_data.pop('elements')
-                stage_ = stageMaster.objects.create(passId=pass_, **stage_data)
-                for element_data in elements_data:
-                    elementMaster.objects.create(stageId=stage_, **element_data)
+            if stages_data[0]['elementsPerVessel_if'] != "":
+                p_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                p_index = passes_data.index(pass_data) + 1
+                pass_data['passUniqueId'] = f"PASS-{p_index}-{p_string}"
+                pass_data['passNumber'] = p_index
+                pass_data['passName'] = f"Pass {p_index}"
+                pass_ = passMaster.objects.create(trainId=train, **pass_data)
+                for stage_data in stages_data:
+                    st_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                    st_index = stages_data.index(stage_data) + 1
+                    stage_data['stageUniqueId'] = f"STAGE-{st_index}-{st_string}"
+                    stage_data['stageNumber'] = f"Stage {st_index}"
+                    elements_data = stage_data.pop('elements')
+                    stage_ = stageMaster.objects.create(passId=pass_, **stage_data)
+                    for element_data in elements_data:
+                        print(type(element_data))
+                        if type(element_data) == str:
+                            el_data = {
+                                "elementName_if": element_data,
+                                "elementLocation_if": elements_data.index(element_data) + 1
+                            }
+                        elif type(element_data) == dict:
+                            el_data = element_data
+                        else:
+                            el_data = element_data
+                        print(el_data)
+                        print(element_data)
+                        elementMaster.objects.create(stageId=stage_, **el_data)
 
     # elif len(plant_element) > 0:
     #     json_ = {
