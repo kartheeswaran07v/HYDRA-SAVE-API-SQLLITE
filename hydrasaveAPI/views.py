@@ -327,7 +327,7 @@ def addPlant(request):
                     st_index = stages_data.index(stage_data) + 1
                     stage_data['stageUniqueId'] = f"STAGE-{st_index}-{st_string}"
                     stage_data['stageNumber'] = f"Stage {st_index}"
-                    elements_data = stage_data.pop('elements')
+                    elements_data = stage_data.pop('elementName_if')
                     stage_ = stageMaster.objects.create(passId=pass_, **stage_data)
                     for element_data in elements_data:
                         print(type(element_data))
