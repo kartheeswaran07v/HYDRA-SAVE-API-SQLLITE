@@ -7,6 +7,7 @@ from .models import *
 from .serializer import *
 from django.core.exceptions import ObjectDoesNotExist
 import random
+import string
 from .domain import *
 from django.core.mail import send_mail
 from django.http import HttpResponse
@@ -256,8 +257,8 @@ def resetPassword(request):
 # View all Plants: http://127.0.0.1:8000/plant/allPlants/
 @api_view(['GET'])
 def allPlants(request):
-    plants = plantMaster.objects.filter(createdById=userMaster.objects.get(id=1)).all()
-    serializer = PlantSerializer(plants, many=True)
+    plants = plantMaster.objects.get(plantUniqueId=request.data['plantId'])
+    serializer = PlantSerializer(plants)
     return Response(serializer.data)
 
 
@@ -273,65 +274,79 @@ def dashPlants(request):
 # View Add Plants: http://127.0.0.1:8000/plant/addPlant/
 @api_view(['POST'])
 def addPlant(request):
-    validated_data = request.data
+    validated_data = request.data['plantData']
     validated_data2 = copy.deepcopy(validated_data)
-    trains_data = validated_data.pop('trains')
     trains_data2 = validated_data2.pop('trains')
-    plantUniqueId_ = request.data['plantUniqueId']
-    plant_element = plantMaster.objects.filter(plantUniqueId=plantUniqueId_).all()
+    user_ = userMaster.objects.get(emailID=request.data['emailId'])
 
     # check for unique Stages
-    stage_count = 0
-    pass_count = 0
-    train_count = 0
-    for train_data in trains_data:
-        passes_data = train_data.pop('passes')
-        train_element = trainMaster.objects.filter(trainUniqueId=train_data['trainUniqueId']).all()
-        if len(train_element) > 0:
-            train_count += 1
-        for pass_data in passes_data:
-            stages_data = pass_data.pop('stages')
-            pass_element = passMaster.objects.filter(passUniqueId=pass_data['passUniqueId']).all()
-            if len(pass_element) > 0:
-                pass_count += 1
-            for stage_data in stages_data:
-                elements_data = stage_data.pop('elements')
-                stage_element = stageMaster.objects.filter(stageUniqueId=stage_data['stageUniqueId']).all()
-                if len(stage_element) > 0:
-                    stage_count += 1
+    # stage_count = 0
+    # pass_count = 0
+    # train_count = 0
+    # for train_data in trains_data:
+        # passes_data = train_data.pop('passes')
+        # train_element = trainMaster.objects.filter(trainUniqueId=train_data['trainUniqueId']).all()
+        # if len(train_element) > 0:
+        #     train_count += 1
+        # for pass_data in passes_data:
+        #     stages_data = pass_data.pop('stages')
+        #     pass_element = passMaster.objects.filter(passUniqueId=pass_data['passUniqueId']).all()
+        #     if len(pass_element) > 0:
+        #         pass_count += 1
+        #     for stage_data in stages_data:
+        #         elements_data = stage_data.pop('elements')
+        #         stage_element = stageMaster.objects.filter(stageUniqueId=stage_data['stageUniqueId']).all()
+        #         if len(stage_element) > 0:
+        #             stage_count += 1
     
     # If data is unique
-    if len(plant_element) == 0 and stage_count == 0:
-        plant = plantMaster.objects.create(createdById=userMaster.objects.get(id=1), **validated_data2)
-        for train_data in trains_data2:
-            print(train_data)
-            passes_data = train_data.pop('passes')
-            train = trainMaster.objects.create(plantId=plant, **train_data)
-            for pass_data in passes_data:
-                stages_data = pass_data.pop('stages')
-                pass_ = passMaster.objects.create(trainId=train, **pass_data)
-                for stage_data in stages_data:
-                    elements_data = stage_data.pop('elements')
-                    stage_ = stageMaster.objects.create(passId=pass_, **stage_data)
-                    for element_data in elements_data:
-                        elementMaster.objects.create(stageId=stage_, **element_data)
+    # if len(plant_element) == 0 and stage_count == 0:
+    pl_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+    plant_elements = plantMaster.objects.filter(createdById=user_)
+    validated_data2['plantUniqueId'] = f"PLANT-{len(plant_elements)+1}-{pl_string}"
+    plant = plantMaster.objects.create(createdById=user_, **validated_data2)
+    for train_data in trains_data2:
+        print(train_data)
+        t_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+        t_index = trains_data2.index(train_data) + 1
+        passes_data = train_data.pop('passes')
+        train_data['trainUniqueId'] = f"TRAIN-{t_index}-{t_string}"
+        train_data["trainNumber"] = t_index
+        train = trainMaster.objects.create(plantId=plant, **train_data)
+        for pass_data in passes_data:
+            p_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+            p_index = passes_data.index(pass_data) + 1
+            pass_data['passUniqueId'] = f"PASS-{p_index}-{p_string}"
+            pass_data['passNumber'] = p_index
+            pass_data['passName'] = f"Pass {p_index}"
+            stages_data = pass_data.pop('stages')
+            pass_ = passMaster.objects.create(trainId=train, **pass_data)
+            for stage_data in stages_data:
+                st_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
+                st_index = stages_data.index(stage_data) + 1
+                stage_data['stageUniqueId'] = f"STAGE-{st_index}-{st_string}"
+                stage_data['stageNumber'] = f"Stage {st_index}"
+                elements_data = stage_data.pop('elements')
+                stage_ = stageMaster.objects.create(passId=pass_, **stage_data)
+                for element_data in elements_data:
+                    elementMaster.objects.create(stageId=stage_, **element_data)
 
-        json_ = {
+    # elif len(plant_element) > 0:
+    #     json_ = {
+    #         "status": "Failure",
+    #         "status_code": 400,
+    #         "message": "Unique Id Constraint not satisified - Plant"
+    #     }
+    # elif len(stage_count) > 0:
+    #     json_ = {
+    #         "status": "Failure",
+    #         "status_code": 400,
+    #         "message": "Unique Id Constraint not satisified - Stage"
+        # }
+    json_ = {
             "status": "OK",
             "status_code": 200,
-            "message": "Data added successfully"
-        }
-    elif len(plant_element) > 0:
-        json_ = {
-            "status": "Failure",
-            "status_code": 500,
-            "message": "Unique Id Constraint not satisified - Plant"
-        }
-    else:
-        json_ = {
-            "status": "Failure",
-            "status_code": 500,
-            "message": "Unique Id Constraint not satisified - Stage"
+            "message": f"Data added successfully: Plant ID: PLANT-{len(plant_elements)}-{pl_string}"
         }
 
     return Response(json_)
@@ -721,5 +736,3 @@ def gaugeData(request):
         return Response({"message": "bad request"})
 
 
-
-# FTP Check

@@ -73,7 +73,7 @@ class trainMaster(models.Model):
     
     
     def __str__(self):
-        return f"{self.trainName}-{self.plantId.plantUniqueId}"
+        return self.trainUniqueId
 
 class passMaster(models.Model):
     random_decimal = random.random()
